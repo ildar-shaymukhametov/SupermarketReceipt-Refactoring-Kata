@@ -57,5 +57,15 @@ namespace SupermarketReceipt.Test
             _receipt.AddDiscount(new Discount(_toothbrush, "3 for 2", 0.99));
             Approvals.Verify(new ReceiptPrinter().PrintReceipt(_receipt));
         }
+        
+        [Fact]
+        public void printWholeReceipt_html()
+        {
+            _receipt.AddProduct(_toothbrush, 1, 0.99, 0.99);
+            _receipt.AddProduct(_toothbrush, 2, 0.99, 2 * 0.99);
+            _receipt.AddProduct(_apples, 0.75, 1.99, 1.99 * 0.75);
+            _receipt.AddDiscount(new Discount(_toothbrush, "3 for 2", 0.99));
+            Approvals.Verify(new HtmlReceiptDecorator(new ReceiptPrinter()).PrintReceipt(_receipt));
+        }
     }
 }

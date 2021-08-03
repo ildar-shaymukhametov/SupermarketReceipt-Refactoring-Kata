@@ -1,0 +1,9 @@
+<table>
+<tr><td>toothbrush                          0.99</td></tr>
+<tr><td>toothbrush                          1.98</td></tr>
+<tr><td>  0.99 * 2</td></tr>
+<tr><td>apples                              1.49</td></tr>
+<tr><td>  1.99 * 0.750</td></tr>
+<tr><td>3 for 2(toothbrush)                 0.99</td></tr>
+<tr><td>Total:                              5.45</td></tr>
+</table>

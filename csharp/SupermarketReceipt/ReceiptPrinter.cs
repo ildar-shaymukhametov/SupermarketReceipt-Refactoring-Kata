@@ -1,9 +1,39 @@
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace SupermarketReceipt
 {
-    public class ReceiptPrinter
+    public class HtmlReceiptDecorator : IReceiptPrinter
+    {
+        private readonly ReceiptPrinter receiptPrinter;
+        public HtmlReceiptDecorator(ReceiptPrinter receiptPrinter)
+        {
+            this.receiptPrinter = receiptPrinter;
+        }
+
+        public string PrintReceipt(Receipt receipt)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("<table>");
+            receiptPrinter
+                .PrintReceipt(receipt)
+                .Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => $"<tr><td>{x}</td></tr>")
+                .ToList()
+                .ForEach(x => builder.AppendLine(x));
+            builder.AppendLine("</table>");
+
+            return builder.ToString();
+        }
+    }
+
+    public interface IReceiptPrinter
+    {
+        string PrintReceipt(Receipt receipt);
+    }
+
+    public class ReceiptPrinter : IReceiptPrinter
     {
         private static readonly CultureInfo Culture = CultureInfo.CreateSpecificCulture("en-GB");
 
