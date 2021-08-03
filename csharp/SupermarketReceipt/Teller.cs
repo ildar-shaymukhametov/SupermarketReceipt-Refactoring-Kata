@@ -31,20 +31,14 @@ namespace SupermarketReceipt
                 receipt.AddProduct(p, quantity, unitPrice, price);
             }
 
-            HandleOffers(receipt, theCart);
-
-            return receipt;
-        }
-
-        public void HandleOffers(Receipt receipt, ShoppingCart theCart)
-        {
             foreach (var offer in _offers)
             {
                 var discount = GetDiscount(offer, theCart.GetProductQuantities());
-
                 if (discount != null)
                     receipt.AddDiscount(discount);
             }
+
+            return receipt;
         }
 
         private Discount GetDiscount(Offer offer, Dictionary<Product, double>  productQuantities)
