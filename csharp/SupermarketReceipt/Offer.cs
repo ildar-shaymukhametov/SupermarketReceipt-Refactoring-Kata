@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SupermarketReceipt
 {
@@ -90,6 +91,43 @@ namespace SupermarketReceipt
                 return new Discount(p, $"{x} for {y}", -discountAmount);
             }
             return null;
+        }
+    }
+    
+    public class BundleOffer : IOffer
+    {
+        private readonly List<ProductQuantity> bundle;
+        private readonly double price;
+
+        public BundleOffer(List<ProductQuantity> bundle, double price)
+        {
+            this.bundle = bundle;
+            this.price = price;
+        }
+
+        public Discount GetDiscount(Dictionary<Product, double> productQuantities, SupermarketCatalog catalog)
+        {
+            var bundles = 0.0;
+            var totalPrice = 0.0;
+            foreach (var item in bundle)
+            {
+                if (productQuantities.ContainsKey(item.Product))
+                {
+                    var purchasedQuantity = productQuantities[item.Product];
+                    if (bundles == 0)
+                    {
+                        bundles = purchasedQuantity / item.Quantity;
+                    }
+                    if (purchasedQuantity != bundles * item.Quantity)
+                    {
+                        return null;
+                    }
+                    totalPrice += purchasedQuantity * catalog.GetUnitPrice(item.Product);
+                }
+            }
+            
+            var discount = price  - totalPrice;
+            return new Discount(productQuantities.First().Key, "Bundle", discount);
         }
     }
 }

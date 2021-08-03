@@ -1,0 +1,6 @@
+toothbrush                          0.99
+apples                              3.98
+  1.99 * 2.000
+Bundle(toothbrush)                 -2.98
+
+Total:                              1.99

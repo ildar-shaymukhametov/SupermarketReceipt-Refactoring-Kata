@@ -15,7 +15,7 @@ namespace SupermarketReceipt.Test
         private Product _rice;
         private Product _apples;
         private Product _cherryTomatoes;
-        
+
         public SupermarketTest()
         {
             _catalog = new FakeCatalog();
@@ -32,7 +32,7 @@ namespace SupermarketReceipt.Test
             _catalog.AddProduct(_cherryTomatoes, 0.69);
 
         }
-        
+
         [Fact]
         public void an_empty_shopping_cart_should_cost_nothing()
         {
@@ -140,6 +140,34 @@ namespace SupermarketReceipt.Test
         {
             _theCart.AddItemQuantity(_apples, 4);
             _teller.AddSpecialOffer(new XforAmountOffer(_apples, 5, 6.99));
+            Receipt receipt = _teller.ChecksOutArticlesFrom(_theCart);
+            Approvals.Verify(new ReceiptPrinter(40).PrintReceipt(receipt));
+        }
+
+        [Fact]
+        public void Bundle_discount()
+        {
+            _theCart.AddItemQuantity(_toothbrush, 1);
+            _theCart.AddItemQuantity(_apples, 2);
+            _teller.AddSpecialOffer(new BundleOffer(new List<ProductQuantity>
+            {
+                new ProductQuantity(_toothbrush, 1),
+                new ProductQuantity(_apples, 2)
+            }, 1.99));
+            Receipt receipt = _teller.ChecksOutArticlesFrom(_theCart);
+            Approvals.Verify(new ReceiptPrinter(40).PrintReceipt(receipt));
+        }
+        
+        [Fact]
+        public void Bundle_incomplete()
+        {
+            _theCart.AddItemQuantity(_toothbrush, 2);
+            _theCart.AddItemQuantity(_apples, 2);
+            _teller.AddSpecialOffer(new BundleOffer(new List<ProductQuantity>
+            {
+                new ProductQuantity(_toothbrush, 1),
+                new ProductQuantity(_apples, 2)
+            }, 1.99));
             Receipt receipt = _teller.ChecksOutArticlesFrom(_theCart);
             Approvals.Verify(new ReceiptPrinter(40).PrintReceipt(receipt));
         }
