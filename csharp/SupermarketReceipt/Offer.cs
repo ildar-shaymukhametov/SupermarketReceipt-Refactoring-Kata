@@ -10,7 +10,12 @@ namespace SupermarketReceipt
         FiveForAmount
     }
 
-    public class Offer
+    public interface IOffer
+    {
+        Discount GetDiscount(Dictionary<Product, double> productQuantities, SupermarketCatalog catalog);
+    }
+
+    public class Offer : IOffer
     {
         public Product Product { get; set; }
 
@@ -24,45 +29,76 @@ namespace SupermarketReceipt
         public SpecialOfferType OfferType { get; }
         public double Argument { get; }
 
-        public Discount GetDiscount(Dictionary<Product, double> productQuantities, SupermarketCatalog catalog)
+        public virtual Discount GetDiscount(Dictionary<Product, double> productQuantities, SupermarketCatalog catalog)
         {
-            var p = Product;
-            var quantity = productQuantities[p];
-            var quantityAsInt = (int)quantity;
-            var unitPrice = catalog.GetUnitPrice(p);
-            Discount discount = null;
-            var x = 1;
-            if (OfferType == SpecialOfferType.ThreeForTwo)
+            if (OfferType == SpecialOfferType.TwoForAmount)
             {
-                x = 3;
-            }
-            else if (OfferType == SpecialOfferType.TwoForAmount)
-            {
-                x = 2;
+                var p = Product;
+                var quantity = productQuantities[p];
+                var quantityAsInt = (int)quantity;
+                var unitPrice = catalog.GetUnitPrice(p);
+                var x = 2;
                 if (quantityAsInt >= 2)
                 {
                     var total = Argument * (quantityAsInt / x) + quantityAsInt % 2 * unitPrice;
                     var discountN = unitPrice * quantity - total;
-                    discount = new Discount(p, "2 for " + Argument, -discountN);
+                    return new Discount(p, "2 for " + Argument, -discountN);
                 }
+                return null;
             }
-
-            if (OfferType == SpecialOfferType.FiveForAmount) x = 5;
-            var numberOfXs = quantityAsInt / x;
-            if (OfferType == SpecialOfferType.ThreeForTwo && quantityAsInt > 2)
+            if (OfferType == SpecialOfferType.ThreeForTwo)
             {
-                var discountAmount = quantity * unitPrice - (numberOfXs * 2 * unitPrice + quantityAsInt % 3 * unitPrice);
-                discount = new Discount(p, "3 for 2", -discountAmount);
+                var p = Product;
+                var quantity = productQuantities[p];
+                var quantityAsInt = (int)quantity;
+                var unitPrice = catalog.GetUnitPrice(p);
+                if (quantityAsInt > 2)
+                {
+                    var x = 3;
+                    var numberOfXs = quantityAsInt / x;
+                    var discountAmount = quantity * unitPrice - (numberOfXs * 2 * unitPrice + quantityAsInt % 3 * unitPrice);
+                    return new Discount(p, "3 for 2", -discountAmount);
+                }
+                return null;
             }
-
-            if (OfferType == SpecialOfferType.TenPercentDiscount) discount = new Discount(p, Argument + "% off", -quantity * unitPrice * Argument / 100.0);
-            if (OfferType == SpecialOfferType.FiveForAmount && quantityAsInt >= 5)
+            if (OfferType == SpecialOfferType.FiveForAmount)
             {
-                var discountTotal = unitPrice * quantity - (Argument * numberOfXs + quantityAsInt % 5 * unitPrice);
-                discount = new Discount(p, x + " for " + Argument, -discountTotal);
+                var p = Product;
+                var quantity = productQuantities[p];
+                var quantityAsInt = (int)quantity;
+                var unitPrice = catalog.GetUnitPrice(p);
+                if (quantityAsInt >= 5)
+                {
+                    var x = 5;
+                    var numberOfXs = quantityAsInt / x;
+                    var discountTotal = unitPrice * quantity - (Argument * numberOfXs + quantityAsInt % 5 * unitPrice);
+                    return new Discount(p, x + " for " + Argument, -discountTotal);
+                }
+                return null;
             }
 
-            return discount;
+            return null;
+        }
+
+    }
+
+    public class PercentageOffer : IOffer
+    {
+        private readonly Product product;
+        private readonly double percent;
+
+        public PercentageOffer(Product product, double percent)
+        {
+            this.product = product;
+            this.percent = percent;
+        }
+
+        public Discount GetDiscount(Dictionary<Product, double> productQuantities, SupermarketCatalog catalog)
+        {
+            var quantity = productQuantities[product];
+            var quantityAsInt = (int)quantity;
+            var unitPrice = catalog.GetUnitPrice(product);
+            return new Discount(product, percent + "% off", -quantity * unitPrice * percent / 100.0);
         }
     }
 }

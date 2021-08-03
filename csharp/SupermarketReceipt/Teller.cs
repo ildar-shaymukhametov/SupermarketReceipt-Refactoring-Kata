@@ -5,17 +5,24 @@ namespace SupermarketReceipt
     public class Teller
     {
         private readonly SupermarketCatalog _catalog;
-        private readonly List<Offer> _offers;
+        private readonly List<IOffer> _offers;
 
         public Teller(SupermarketCatalog catalog)
         {
-            _offers = new List<Offer>();
+            _offers = new List<IOffer>();
             _catalog = catalog;
         }
 
         public void AddSpecialOffer(SpecialOfferType offerType, Product product, double argument)
         {
-            _offers.Add(new Offer(offerType, product, argument));
+            if (offerType == SpecialOfferType.TenPercentDiscount)
+            {
+                _offers.Add(new PercentageOffer(product, argument));
+            }
+            else
+            {
+                _offers.Add(new Offer(offerType, product, argument));
+            }
         }
 
         public Receipt ChecksOutArticlesFrom(ShoppingCart theCart)
