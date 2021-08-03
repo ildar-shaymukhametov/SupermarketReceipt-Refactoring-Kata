@@ -19,9 +19,17 @@ namespace SupermarketReceipt
             {
                 _offers.Add(new PercentageOffer(product, argument));
             }
-            else
+            else if (offerType == SpecialOfferType.FiveForAmount)
             {
-                _offers.Add(new Offer(offerType, product, argument));
+                _offers.Add(new XforAmountOffer(product, 5, argument));
+            }
+            else if (offerType == SpecialOfferType.TwoForAmount)
+            {
+                _offers.Add(new XforAmountOffer(product, 2, argument));
+            }
+            else if (offerType == SpecialOfferType.ThreeForTwo)
+            {
+                _offers.Add(new XforYOffer(product, 3, 2));
             }
         }
 
